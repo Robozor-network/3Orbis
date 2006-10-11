@@ -1,0 +1,321 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3c.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title> 3Orbis </title>
+    <meta name="keywords" content="robot 3orbis čára">
+    <meta name="description" content="Projekt MLAB, Robot na čáru 3Orbis">
+    <!-- AUTOINCLUDE START "Page/Head.cs.ihtml" DO NOT REMOVE -->
+    <link rel="StyleSheet" href="../../../../../Web/CSS/MLAB.css" type="text/css" title="MLAB základní styl">
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../Web/PIC/MLAB.ico">
+    <script type="text/javascript" src="../../../../../Web/JS/MLAB_Menu.js"></script>
+    <!-- AUTOINCLUDE END -->
+    <style type="text/css">
+    img.Pic1  {position:absolute;z-index:10;margin-left:230px;margin-top:10px; }
+    img.Pic2  {position:absolute;z-index:10;margin-left:322px;margin-top:160px; }
+    img.Pic3  {position:absolute;z-index:10;margin-left:6px;margin-top:160px; }
+    img.Pic4  {position:absolute;z-index:10;margin-left:200px;margin-top:200px; }
+    img.Pic7  {position:absolute;z-index:10;margin-left:415px;margin-top:185px; }
+    img.Pic8  {position:absolute;z-index:10;margin-left:70px;margin-top:160px; }
+    img.Pic11 {position:absolute;z-index:10;margin-left:10px;margin-top:125px; }
+    img.Pic12 {position:absolute;z-index:10;margin-left:128px;margin-top:5px; }
+    </style>
+
+  </head>
+
+  <body lang="cs">
+
+    <!-- AUTOINCLUDE START "Page/Header.cs.ihtml" DO NOT REMOVE -->
+    <!-- ============== HLAVICKA ============== -->
+    <div class="Header">
+      <script type="text/javascript">
+      <!--
+        SetRelativePath("../../../../../");
+        DrawHeader();
+      // -->
+      </script>
+      <noscript>
+        <p><b> Pro zobrazení (vložení) hlavičky je potřeba JavaScript </b></p>
+      </noscript>
+    </div>
+    <!-- AUTOINCLUDE END -->
+
+    <!-- AUTOINCLUDE START "Page/Menu.cs.ihtml" DO NOT REMOVE -->
+    <!-- ============== MENU ============== -->
+    <div class="Menu">
+      <script type="text/javascript">
+      <!--
+        SetRelativePath("../../../../../");
+        DrawMenu();
+      // -->
+      </script>
+      <noscript>
+        <p><b> Pro zobrazení (vložení) menu je potřeba JavaScript </b></p>
+      </noscript>
+    </div>
+    <!-- AUTOINCLUDE END -->
+
+    <!-- ============== TEXT ============== -->
+    <div class="Text">
+      <p class="Title">
+        Robot 3Orbis
+      </p>
+      <p class=Autor>
+        Jakub Kákona
+      </p>
+      <p class="Subtitle">
+        Čárový robot 3Orbis v vznikl po zkušenostech s předchozími roboty,
+        u kterých byl problém s dynamickými vlastnostmi podvozku. Předchozí
+        roboty (<i>Callis</i>, <i>Merkur</i>) měli ve dva stejnosměrné motory
+        na kterých se reguloval výkon a tím robot zatáčel. Nová konstrukce
+        se liší tím, že má aktivní zatáčecí kolo.
+      </p>
+      <p class="Subtitle">
+        <img class="Pic0" width="605" height="454" src="Pictures/image005.jpg"
+         alt="Obrázek robota">
+      </p>
+      <p>
+        <a href="../3Orbis.cs.pdf"><img class="NoBorder"
+           src="../../../../../Web/PIC/FileIco_PDF.ico"
+           alt="Acrobat">&nbsp;PDF verze</a>
+      </p>
+
+      <h1> Robot 3Orbis </h1>
+
+      <p>
+        3Orbis v vznikl po zkušenostech s předchozími roboty, u kterých byl
+        problém s dynamickými vlastnostmi podvozku. To bylo způsobeno tím, že
+        minulé verze našich robotů měli ve směs dva stejnosměrné motory
+        (Callis, Merkur) na kterých se reguloval výkon a tím robot zatáčel.
+        Hlavní nevýhody tohoto systému byly:
+      </p>
+
+      <ul>
+        <li>
+          <i>Setrvačnost pohonů</i><br>
+          V prudké zatáčce bylo potřeba jedno z kol výrazně zpomalit, případně
+          zastavit. To není zcela bez potíží, protože použité pohony neměly
+          žádnou zpětnou vazbu, ze které by se dal získat nějaký údaj o
+          rychlosti. Takže jediným způsobem jak kolo dostatečně rychle zpomalit
+          bylo reverzovat motor na nějakou určitou dobu. Problém je v tom, že
+          tato doba se mění podle rychlosti robota.
+        </li>
+        <li>
+          <i>Nestabilita podvozku</i><br>
+          Robot musel v důsledku toho, že měl pouze dvě kola připojená na
+          motory mít ještě nějaké třecí elementy, které zaručovaly definovanou
+          vzdálenost senzorů od tratě. Robot měl určitou vůli v náklonu proti
+          podložce, takže nebylo možné na snímání čáry použít čidla s přesnou
+          optikou.
+        </li>
+        <li>
+          <i>Špatné využití výkonu pohonů</i><br>
+          Robot na rovné čáře nejel tak rovně jak by bylo třeba, ale čáru
+          křižoval. Dělo se to tím, že pohony měly nenulovou setrvačnost, takže
+          na změnu polohy čáry se nedalo dostatečně rychle reagovat. Navíc toto
+          křižování čáry mělo za následek to, že motory zdaleka nebyly využity
+          na maximum, protože jeden z nich byl vždy zpomalen.
+        </li>
+      </ul>
+
+      <p>
+        Proto jsme se na letošní ročník soutěže ISTROBOT 2006 [3] rozhodli
+        postavit revolučního robota s úplně odlišnou konstrukcí. To se ale
+        později ukázalo, jako ne zrovna šťastný nápad, protože odladit nový
+        řídící systém zabralo mnohem víc času, než jsme čekali.
+      </p>
+
+      <p>
+        Rozhodli jsme se pro konstrukci tříkolého podvozku kde přední kolečko
+        je zatáčecí (zkoušeli jsme i opačnou variantu se zatáčecím zadním
+        kolečkem, ale ta měla horší výsledky, v zatáčkách měla příliš pomalou
+        odezvu).
+      </p>
+
+      <p>
+        Obrázek robota s popiskami<br>
+        <!-- Vektorová grafika -->
+        <img class="Pic1" width="331" height="123" src="Pictures/image001.gif"
+         alt="Čárový popisek 2: Procesor a IR modul">
+        <img class="Pic2" width="243" height="101" src="Pictures/image002.gif"
+         alt="Čárový popisek 2: Posuvný Registr +8LED">
+        <img class="Pic3" width="131" height="121" src="Pictures/image003.gif"
+         alt="Čárový popisek 2: H-Můstek">
+        <img class="Pic4" width="323" height="234" src="Pictures/image004.gif"
+         alt="Čárový popisek 2: Procesor a IR přijímač">
+        <!-- Podkladový obrázek -->
+        <img class="Pic0" width="605" height="454" src="Pictures/image005.jpg"
+         alt="Obrázek robota">
+      </p>
+
+      <h1> Konstrukce </h1>
+
+      <p>
+        Robot 3Orbis má tedy tři kola, kde přední zatáčecí kolečko je ovládáno
+        modelářským servem HS-81 které je zrychleno externím převodem 2,5:1
+        zadní kola jsou poháněna dvěma stejnosměrnými motory GRAUPNER Speed 300
+        které jsou připojeny na kola o d=35mm přes převodovku 1:5. Všechny tyto
+        komponenty jsou přišroubovány na duralový plech T=2,5mm. Čidla na čáru
+        jsou navlečena na závitové tyči M3, která je na podvozek připevněna
+        konstrukcí z Al profilů. Na základní duralové desce jsou ještě tři
+        závitové tyčky, které slouží jako nosné sloupky pro kryt z hadr disku
+        Seagate ST125 :) na kterém je připevněna v podstatě veškerá
+        elektronika.
+      </p>
+
+      <p>
+        Tato mechanická konstrukce sice vyřešila většinu výše uvedených
+        problémů, ale na druhou stranu je mnohem obtížnější její řízení, je nutné
+        přesně vyladit softwarový diferenciál na zadních kolech (Při použití
+        vhodnějších motorů by se tento problém pravděpodobně dal vyřešit
+        zapojením do série.) Také není snadné správně nastavit úhly předního
+        kolečka, na tyto pokusy padlo několik těsnění 1/4“ 2x2mm.
+      </p>
+
+      <p>
+        Obrázek hlavní převodovky<br>
+        <img width="605" height="454" src="Pictures/image006.jpg"
+         alt="Hlavní převodovky">
+      </p>
+
+      <p>
+        Převody serva<br>
+        <!-- Vektorová grafika -->
+        <img class="Pic7" width="142" height="58" src="Pictures/image007.gif"
+         alt="Čárový popisek 2: IR LED">
+        <img class="Pic8" width="234" height="75" src="Pictures/image008.gif"
+         alt="Čárový popisek 2: Servo HS-81 ">
+        <!-- Podkladový obrázek -->
+        <img width="605" height="454" src="Pictures/image009.jpg"
+         alt="">
+      </p>
+
+      <p>
+        Elektronická řídící jednotka je téměř celá poskládána z modulů
+        stavebnice MLAB[2]:
+      </p>
+
+      <p>
+        Modul <i>PIC16F84DIL1801A</i> osazený procesorem <i>PIC16F88</i> (Slave)
+        je použit na zpracování dat z 470nm analogových čidel na snímání čáry +
+        IR čidla SFH-5110 na detekci překážky. Druhý modul <i>PIC16F84DIL1801A</i>
+        též osazený procesorem <i>PIC16F88</i> (Master) přebírá data z prvního
+        procesoru a na jejich základě řídí pohyb robota.
+      </p>
+
+      <p>
+        Motory jsou řízeny modulem <i>HBRIDGE01A</i> který je ovládán
+        softwarovou PWM z master procesoru. Master procesor je také přímo
+        připojen k servu HS-81.
+      </p>
+
+      <p>
+        Na sériové lince mezi oběma procesory je paralelně připojen modul
+        posuvného registru <i>LEDBAR01A</i> který slouží k zobrazení stavů čidel
+        a k ověření správné funkce sériové linky.
+      </p>
+
+      <p>
+        Napájení elektroniky je zajištěno modulem LEDROBOT01A. Modul
+        LEDROBOT01A také vizualizuje stav čidel na překážku.
+      </p>
+
+      <p>
+        Modulátor IR signálu pro přijímač SFH-5110 je postaven z obvodu HC4047.
+        IR vysílač a přijímač je třeba umístit tak, aby se jejich optické osy
+        protínaly ve vzdálenosti, na kterou má být detekována překážka.[1]
+      </p>
+
+      <h2> Zapojení IR modulátoru </h2>
+
+      <p>
+        <img width="506" height="292" src="Pictures/image010.gif"
+         alt="Zapojení IR modulátoru">
+      </p>
+
+      <p>
+        Zapojení elektroniky<br>
+        <!-- Vektorové popisky -->
+        <img class="Pic11 " width="110" height="284" src="Pictures/image011.gif"
+         alt="Čárový popisek 4: Trimry na nastavení regulátoru">
+        <img class="Pic12" width="127" height="142" src="Pictures/image012.gif"
+         alt="Čárový popisek 4: Stabilizátor napětí">
+        <!-- Podkladový obrázek -->
+        <img width="605" height="454" src="Pictures/image013.jpg"
+         alt="Zapojení elektroniky">
+      </p>
+
+      <h2> Propojení modulů stavebnice </h2>
+
+      <p>
+        <img width="769" height="604" src="Pictures/image014.gif"
+         alt="">
+      </p>
+
+      <h2> Princip řízení </h2>
+
+      <p>
+        Na řízení robota je použit softwarový proporcionální regulátor se sedmi
+        diskrétními stavy (tj. odchylce čáry od středního čidla odpovídá
+        výchylka předního kolečka). Zesílení regulátoru je pevně nastaveno
+        konstantami pro každý diskrétní stav. Stejně je vyřešen i softwarový
+        diferenciál na zadních kolech.
+      </p>
+
+      <p>
+        Experimentovali jsme i s použitím PD regulátoru, ale nepodařilo se
+        dosáhnou lepších výsledků než se samostatným P-regulátorem.
+      </p>
+
+      <h2> Problémy konstrukce </h2>
+
+      <p>
+        Stabilitu podvozku se podařilo zlepšit pouze částečně. Robot se teď při
+        velké rychlosti v zatáčkách překlápí, protože je v předu podpírán pouze
+        v jednom bodě.
+      </p>
+
+      <p>
+        Použitá čidla z inkoustových tiskáren měla nedostatečný osvětlovací
+        výkon a také příliš malou hloubku ostrosti. Řešením by mohla být výměna
+        470nm LED diod za diody s vyšší svítivostí a odbroušení fresnelovy
+        čočky před fototranzistorem.
+      </p>
+
+      <h2> Zdroje </h2>
+
+      <ul>
+        <li> [1] Novák, Petr : <i>Mobilní Roboty - pohony, senzory, řízení.</i> BEN r.v. 2005 </li>
+        <li> [2] <a href="http://www.mlab.cz/">www.mlab.cz</a> </li>
+        <li> [3] <a href="http://www.robotika.sk">www.robotika.sk</a> </li>
+      </ul>
+
+      <h2> Poděkování </h2>
+
+      <p>
+        Na závěr bych chtěl poděkovat panu Mgr. Milanu Novotnému ze SPŠ Strojní
+        a Elektrotechnické v Českých Budějovicích za to že, vyrobil podvozek
+        robota a vyfrézoval bezvadné převodovky. Dále Ing. Stanislavu Nedvědovi
+        za konzultaci a nastínění možného způsobu řízení. Pak Mgr. Šinknerové
+        za to, že mne uvolnila z několika desítek minut výuky angličtiny.
+      </p>
+
+    </div>
+
+    <!-- AUTOINCLUDE START "Page/Footer.cs.ihtml" DO NOT REMOVE -->
+    <!-- ============== PATIČKA ============== -->
+    <div class="Footer">
+      <script type="text/javascript">
+      <!--
+        SetRelativePath("../../../../../");
+        DrawFooter();
+      // -->
+      </script>
+      <noscript>
+        <p><b> Pro zobrazení (vložení) hlavičky je potřeba JavaScript </b></p>
+      </noscript>
+    </div>
+    <!-- AUTOINCLUDE END -->
+
+  </body>
+</html>
