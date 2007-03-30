@@ -1,0 +1,59 @@
+015     CCP_1_LOW
+015-016 CCP_1
+016     CCP_1_HIGH
+020     last_radius
+021     last_cidla
+022     shure
+023     main.cidla
+024     main.a
+025     main.n
+026     main.@SCRATCH
+027     @PRINTF_U_9600_51_41.P1
+027     @delay_ms1.P2
+028     @PRINTF_U_9600_51_41.P1
+029     @PUTCHAR_1_.P1
+029     @DIV88.P2
+02A     @DIV88.P1
+02B     @DIV88.@SCRATCH
+077     @SCRATCH
+078     @SCRATCH
+078     _RETURN_
+079     @SCRATCH
+07A     @SCRATCH
+07B     @SCRATCH
+09C.6   C1OUT
+09C.7   C2OUT
+
+002A  @delay_ms1
+0041  @PUTCHAR_1_
+00B1  main
+0004  @const10062
+000B  @const10067
+0015  @const10080
+0067  @DIV88
+007C  @PRINTF_U_9600_51_41
+00B1  @cinit
+
+Project Files:
+    D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.c
+    D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.h
+    C:\Program Files\PICC\devices\16F88.h
+
+Units:
+    D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.c (main)
+
+Compiler Settings:
+    Processor:      PIC16F88
+    Pointer Size:   8
+    ADC Range:      0-255
+    Opt Level:      9
+    Short,Int,Long: 1,8,16
+
+Output Files:
+    Errors:      D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.err
+    INHX8:       D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.hex
+    Symbols:     D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.sym
+    List:        D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.lst
+    Debug/COFF:  D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.cof
+    Call Tree:   D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.tre
+    Statistics:  D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.sta

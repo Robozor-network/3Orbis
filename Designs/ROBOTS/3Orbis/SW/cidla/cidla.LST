@@ -1,0 +1,620 @@
+CCS PCM C Compiler, Version 3.245, 27853               05-XI-06 20:45
+
+               Filename: D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.lst
+
+               ROM used: 548 words (13%)
+                         Largest free fragment is 2048
+               RAM used: 12 (7%) at main() level
+                         17 (10%) worst case
+               Stack:    2 locations
+
+*
+0000:  MOVLW  00
+0001:  MOVWF  0A
+0002:  GOTO   0B1
+0003:  NOP
+.................... #include ".\cidla.h" 
+.................... #include <16F88.h> 
+.................... //////// Standard Header file for the PIC16F88 device //////////////// 
+.................... #device PIC16F88 
+.................... #list 
+....................  
+.................... #device adc=8 
+.................... #fuses NOWDT,INTRC_IO, NOPUT, MCLR, NOBROWNOUT, NOLVP, NOCPD, NOWRT, NODEBUG, NOPROTECT, NOFCMEN, NOIESO 
+.................... #use delay(clock=4000000,RESTART_WDT) 
+*
+002A:  MOVLW  27
+002B:  MOVWF  04
+002C:  MOVF   00,W
+002D:  BTFSC  03.2
+002E:  GOTO   040
+002F:  MOVLW  01
+0030:  MOVWF  78
+0031:  MOVLW  BF
+0032:  MOVWF  77
+0033:  CLRWDT
+0034:  DECFSZ 77,F
+0035:  GOTO   033
+0036:  DECFSZ 78,F
+0037:  GOTO   031
+0038:  MOVLW  4A
+0039:  MOVWF  77
+003A:  DECFSZ 77,F
+003B:  GOTO   03A
+003C:  NOP
+003D:  CLRWDT
+003E:  DECFSZ 00,F
+003F:  GOTO   02F
+0040:  RETLW  00
+....................  
+....................  
+.................... //#include <stdlib.h> 
+....................  
+.................... #use rs232(baud=9600,parity=N,xmit=PIN_B3,bits=8,restart_wdt) 
+0041:  BSF    03.5
+0042:  BCF    06.3
+0043:  BCF    03.5
+0044:  BCF    06.3
+0045:  MOVLW  08
+0046:  MOVWF  78
+0047:  NOP
+0048:  NOP
+0049:  NOP
+004A:  BSF    78.7
+004B:  GOTO   05B
+004C:  BCF    78.7
+004D:  RRF    29,F
+004E:  BTFSC  03.0
+004F:  BSF    06.3
+0050:  BTFSS  03.0
+0051:  BCF    06.3
+0052:  BSF    78.6
+0053:  GOTO   05B
+0054:  BCF    78.6
+0055:  DECFSZ 78,F
+0056:  GOTO   04D
+0057:  NOP
+0058:  NOP
+0059:  NOP
+005A:  BSF    06.3
+005B:  MOVLW  1C
+005C:  MOVWF  04
+005D:  DECFSZ 04,F
+005E:  GOTO   05D
+005F:  NOP
+0060:  NOP
+0061:  CLRWDT
+0062:  BTFSC  78.7
+0063:  GOTO   04C
+0064:  BTFSC  78.6
+0065:  GOTO   054
+0066:  RETLW  00
+....................  
+.................... #define IRRX      PIN_B0 
+....................  
+.................... #define  TRESHOLD_MAX   70    // rozhodovaci uroven  pro cidla cerna/bila 
+.................... #define  TRESHOLD_MIN   50 
+.................... #define  CIHLA          10    // doba, po kterou musi byt detekovana cihla 
+....................  
+.................... unsigned int8 last_radius;    // rozsah 
+.................... unsigned int8 last_cidla;     // co cidla videla minule 
+.................... unsigned int8 shure;          // citac doby, po kterou musi byt detekovana cihla 
+....................  
+.................... //tuning 
+.................... /*#define  PULZACE  3  // urcuje rychlost pulzovani pomoci PWM 
+....................  
+.................... //Vystup PWM je na PIN_B3 
+.................... //////////////////////////////////////////////////////////////////////////////// 
+.................... void pulzovani()  // postupne rozsvecuje a zhasina podsvetleni 
+.................... { 
+.................... unsigned int8 i,n; 
+....................    for(n=0;n<=3;n++) 
+....................    { 
+....................       for(i=0;i<255;i++) {set_pwm1_duty(i); Delay_ms(PULZACE);} // rozsvecovani 
+....................       for(i=255;i>0;i--) {set_pwm1_duty(i); Delay_ms(PULZACE);} // zhasinani 
+....................    } 
+.................... } 
+.................... */ 
+.................... //////////////////////////////////////////////////////////////////////////////// 
+.................... void main() 
+.................... { 
+*
+00B1:  CLRF   04
+00B2:  MOVLW  1F
+00B3:  ANDWF  03,F
+00B4:  MOVLW  60
+00B5:  BSF    03.5
+00B6:  MOVWF  0F
+00B7:  BCF    06.3
+00B8:  BCF    03.5
+00B9:  BSF    06.3
+00BA:  BSF    03.5
+00BB:  BCF    1F.4
+00BC:  BCF    1F.5
+00BD:  MOVF   1B,W
+00BE:  ANDLW  80
+00BF:  MOVWF  1B
+00C0:  MOVLW  07
+00C1:  MOVWF  1C
+....................    int8 cidla; 
+....................    unsigned int8 a; 
+....................    unsigned int8 n; 
+....................  
+....................    setup_adc_ports(sAN0|sAN1|sAN2|sAN3|sAN4|sAN5|sAN6|VSS_VDD); 
+00C2:  BCF    1F.4
+00C3:  BCF    1F.5
+00C4:  MOVF   1B,W
+00C5:  ANDLW  80
+00C6:  IORLW  7F
+00C7:  MOVWF  1B
+....................    setup_adc(ADC_CLOCK_INTERNAL); 
+00C8:  BCF    1F.6
+00C9:  BCF    03.5
+00CA:  BSF    1F.6
+00CB:  BSF    1F.7
+00CC:  BSF    03.5
+00CD:  BCF    1F.7
+00CE:  BCF    03.5
+00CF:  BSF    1F.0
+....................    setup_timer_0(RTCC_INTERNAL|RTCC_DIV_1); 
+00D0:  BSF    03.5
+00D1:  MOVF   01,W
+00D2:  ANDLW  C7
+00D3:  IORLW  08
+00D4:  MOVWF  01
+....................    setup_timer_1(T1_DISABLED); 
+00D5:  BCF    03.5
+00D6:  CLRF   10
+....................    setup_timer_2(T2_DISABLED,0,1); 
+00D7:  MOVLW  00
+00D8:  MOVWF  78
+00D9:  MOVWF  12
+00DA:  MOVLW  00
+00DB:  BSF    03.5
+00DC:  MOVWF  12
+....................    setup_comparator(NC_NC_NC_NC); 
+00DD:  MOVLW  07
+00DE:  MOVWF  1C
+00DF:  MOVF   05,W
+00E0:  CLRWDT
+00E1:  MOVLW  02
+00E2:  MOVWF  77
+00E3:  DECFSZ 77,F
+00E4:  GOTO   0E3
+00E5:  NOP
+00E6:  NOP
+00E7:  MOVF   1C,W
+00E8:  BCF    03.5
+00E9:  BCF    0D.6
+....................    setup_vref(FALSE); 
+00EA:  BSF    03.5
+00EB:  CLRF   1D
+....................  
+....................    Delay_ms(500); 
+00EC:  MOVLW  02
+00ED:  BCF    03.5
+00EE:  MOVWF  26
+00EF:  MOVLW  FA
+00F0:  MOVWF  27
+00F1:  CALL   02A
+00F2:  DECFSZ 26,F
+00F3:  GOTO   0EF
+....................    setup_spi(SPI_SLAVE|SPI_H_TO_L|SPI_SS_DISABLED); 
+00F4:  BCF    14.5
+00F5:  BSF    03.5
+00F6:  BCF    06.2
+00F7:  BSF    06.1
+00F8:  BSF    06.4
+00F9:  MOVLW  35
+00FA:  BCF    03.5
+00FB:  MOVWF  14
+00FC:  MOVLW  40
+00FD:  BSF    03.5
+00FE:  MOVWF  14
+....................     
+....................    // diagnostika 
+....................    printf("\n\r"); 
+00FF:  BCF    03.5
+0100:  CLRF   26
+0101:  MOVF   26,W
+0102:  CALL   004
+0103:  IORLW  00
+0104:  BTFSC  03.2
+0105:  GOTO   10A
+0106:  INCF   26,F
+0107:  MOVWF  29
+0108:  CALL   041
+0109:  GOTO   101
+....................    Delay_ms(100); 
+010A:  MOVLW  64
+010B:  MOVWF  27
+010C:  CALL   02A
+....................    printf("***\n\r"); 
+010D:  CLRF   26
+010E:  MOVF   26,W
+010F:  CALL   00B
+0110:  IORLW  00
+0111:  BTFSC  03.2
+0112:  GOTO   117
+0113:  INCF   26,F
+0114:  MOVWF  29
+0115:  CALL   041
+0116:  GOTO   10E
+....................    Delay_ms(100); 
+0117:  MOVLW  64
+0118:  MOVWF  27
+0119:  CALL   02A
+....................    for (n=0; n<=6; n++) 
+011A:  CLRF   25
+011B:  MOVF   25,W
+011C:  SUBLW  06
+011D:  BTFSS  03.0
+011E:  GOTO   157
+....................    { 
+....................       set_adc_channel(n); 
+011F:  RLF    25,W
+0120:  MOVWF  77
+0121:  RLF    77,F
+0122:  RLF    77,F
+0123:  MOVLW  F8
+0124:  ANDWF  77,F
+0125:  MOVF   1F,W
+0126:  ANDLW  C7
+0127:  IORWF  77,W
+0128:  MOVWF  1F
+....................       Delay_ms(100); 
+0129:  MOVLW  64
+012A:  MOVWF  27
+012B:  CALL   02A
+....................       a=read_adc(); 
+012C:  BSF    1F.2
+012D:  BTFSC  1F.2
+012E:  GOTO   12D
+012F:  MOVF   1E,W
+0130:  MOVWF  24
+....................       printf("sensor %u - %u\n\r",n,a); 
+0131:  CLRF   26
+0132:  MOVF   26,W
+0133:  CALL   015
+0134:  INCF   26,F
+0135:  MOVWF  77
+0136:  MOVWF  29
+0137:  CALL   041
+0138:  MOVLW  07
+0139:  SUBWF  26,W
+013A:  BTFSS  03.2
+013B:  GOTO   132
+013C:  MOVF   25,W
+013D:  MOVWF  27
+013E:  MOVLW  1B
+013F:  MOVWF  28
+0140:  CALL   07C
+0141:  MOVLW  20
+0142:  MOVWF  29
+0143:  CALL   041
+0144:  MOVLW  2D
+0145:  MOVWF  29
+0146:  CALL   041
+0147:  MOVLW  20
+0148:  MOVWF  29
+0149:  CALL   041
+014A:  MOVF   24,W
+014B:  MOVWF  27
+014C:  MOVLW  1B
+014D:  MOVWF  28
+014E:  CALL   07C
+014F:  MOVLW  0A
+0150:  MOVWF  29
+0151:  CALL   041
+0152:  MOVLW  0D
+0153:  MOVWF  29
+0154:  CALL   041
+....................    } 
+0155:  INCF   25,F
+0156:  GOTO   11B
+....................  
+....................    shure=0; 
+0157:  CLRF   22
+....................    while(true) 
+....................    { 
+....................       set_adc_channel(0); 
+0158:  MOVLW  00
+0159:  MOVWF  78
+015A:  MOVF   1F,W
+015B:  ANDLW  C7
+015C:  IORWF  78,W
+015D:  MOVWF  1F
+....................       cidla=0; 
+015E:  CLRF   23
+....................       Delay_us(10); 
+015F:  CLRWDT
+0160:  MOVLW  02
+0161:  MOVWF  77
+0162:  DECFSZ 77,F
+0163:  GOTO   162
+0164:  NOP
+0165:  NOP
+....................       a=read_adc(); 
+0166:  BSF    1F.2
+0167:  BTFSC  1F.2
+0168:  GOTO   167
+0169:  MOVF   1E,W
+016A:  MOVWF  24
+....................  
+....................       set_adc_channel(1); 
+016B:  MOVLW  08
+016C:  MOVWF  78
+016D:  MOVF   1F,W
+016E:  ANDLW  C7
+016F:  IORWF  78,W
+0170:  MOVWF  1F
+....................       if(a<TRESHOLD_MAX)         //hystereze cidel 
+0171:  MOVF   24,W
+0172:  SUBLW  45
+0173:  BTFSS  03.0
+0174:  GOTO   17E
+....................       { 
+....................          if(a>TRESHOLD_MIN) 
+0175:  MOVF   24,W
+0176:  SUBLW  32
+0177:  BTFSC  03.0
+0178:  GOTO   17D
+....................          { 
+....................             cidla |= (last_cidla & 0b00000001); 
+0179:  MOVF   21,W
+017A:  ANDLW  01
+017B:  IORWF  23,F
+....................          } 
+....................          else cidla |= 0b00000001; 
+017C:  GOTO   17E
+017D:  BSF    23.0
+....................       } 
+....................  
+....................       a=read_adc(); 
+017E:  BSF    1F.2
+017F:  BTFSC  1F.2
+0180:  GOTO   17F
+0181:  MOVF   1E,W
+0182:  MOVWF  24
+....................  
+....................       set_adc_channel(2); 
+0183:  MOVLW  10
+0184:  MOVWF  78
+0185:  MOVF   1F,W
+0186:  ANDLW  C7
+0187:  IORWF  78,W
+0188:  MOVWF  1F
+....................       if(a<TRESHOLD_MAX) 
+0189:  MOVF   24,W
+018A:  SUBLW  45
+018B:  BTFSS  03.0
+018C:  GOTO   196
+....................       { 
+....................          if(a>TRESHOLD_MIN) 
+018D:  MOVF   24,W
+018E:  SUBLW  32
+018F:  BTFSC  03.0
+0190:  GOTO   195
+....................          { 
+....................             cidla |= (last_cidla & 0b00000010); 
+0191:  MOVF   21,W
+0192:  ANDLW  02
+0193:  IORWF  23,F
+....................          } 
+....................          else cidla |= 0b00000010; 
+0194:  GOTO   196
+0195:  BSF    23.1
+....................       } 
+....................  
+....................       a=read_adc(); 
+0196:  BSF    1F.2
+0197:  BTFSC  1F.2
+0198:  GOTO   197
+0199:  MOVF   1E,W
+019A:  MOVWF  24
+....................  
+....................       set_adc_channel(3); 
+019B:  MOVLW  18
+019C:  MOVWF  78
+019D:  MOVF   1F,W
+019E:  ANDLW  C7
+019F:  IORWF  78,W
+01A0:  MOVWF  1F
+....................       if(a<TRESHOLD_MAX) 
+01A1:  MOVF   24,W
+01A2:  SUBLW  45
+01A3:  BTFSS  03.0
+01A4:  GOTO   1AE
+....................       { 
+....................          if(a>TRESHOLD_MIN) 
+01A5:  MOVF   24,W
+01A6:  SUBLW  32
+01A7:  BTFSC  03.0
+01A8:  GOTO   1AD
+....................          { 
+....................             cidla |= (last_cidla & 0b00000100); 
+01A9:  MOVF   21,W
+01AA:  ANDLW  04
+01AB:  IORWF  23,F
+....................          } 
+....................          else cidla |= 0b00000100; 
+01AC:  GOTO   1AE
+01AD:  BSF    23.2
+....................       } 
+....................  
+....................       a=read_adc(); 
+01AE:  BSF    1F.2
+01AF:  BTFSC  1F.2
+01B0:  GOTO   1AF
+01B1:  MOVF   1E,W
+01B2:  MOVWF  24
+....................  
+....................       set_adc_channel(4); 
+01B3:  MOVLW  20
+01B4:  MOVWF  78
+01B5:  MOVF   1F,W
+01B6:  ANDLW  C7
+01B7:  IORWF  78,W
+01B8:  MOVWF  1F
+....................       if(a<TRESHOLD_MAX) 
+01B9:  MOVF   24,W
+01BA:  SUBLW  45
+01BB:  BTFSS  03.0
+01BC:  GOTO   1C6
+....................       { 
+....................          if(a>TRESHOLD_MIN) 
+01BD:  MOVF   24,W
+01BE:  SUBLW  32
+01BF:  BTFSC  03.0
+01C0:  GOTO   1C5
+....................          { 
+....................             cidla |= (last_cidla & 0b00001000); 
+01C1:  MOVF   21,W
+01C2:  ANDLW  08
+01C3:  IORWF  23,F
+....................          } 
+....................          else cidla |= 0b00001000; 
+01C4:  GOTO   1C6
+01C5:  BSF    23.3
+....................       } 
+....................       a=read_adc(); 
+01C6:  BSF    1F.2
+01C7:  BTFSC  1F.2
+01C8:  GOTO   1C7
+01C9:  MOVF   1E,W
+01CA:  MOVWF  24
+....................  
+....................       set_adc_channel(5); 
+01CB:  MOVLW  28
+01CC:  MOVWF  78
+01CD:  MOVF   1F,W
+01CE:  ANDLW  C7
+01CF:  IORWF  78,W
+01D0:  MOVWF  1F
+....................  
+....................       if(a<TRESHOLD_MAX) 
+01D1:  MOVF   24,W
+01D2:  SUBLW  45
+01D3:  BTFSS  03.0
+01D4:  GOTO   1DE
+....................       { 
+....................          if(a>TRESHOLD_MIN) 
+01D5:  MOVF   24,W
+01D6:  SUBLW  32
+01D7:  BTFSC  03.0
+01D8:  GOTO   1DD
+....................          { 
+....................             cidla |= (last_cidla & 0b00010000); 
+01D9:  MOVF   21,W
+01DA:  ANDLW  10
+01DB:  IORWF  23,F
+....................          } 
+....................          else cidla |= 0b00010000; 
+01DC:  GOTO   1DE
+01DD:  BSF    23.4
+....................       } 
+....................       a=read_adc(); 
+01DE:  BSF    1F.2
+01DF:  BTFSC  1F.2
+01E0:  GOTO   1DF
+01E1:  MOVF   1E,W
+01E2:  MOVWF  24
+....................  
+....................       set_adc_channel(6); 
+01E3:  MOVLW  30
+01E4:  MOVWF  78
+01E5:  MOVF   1F,W
+01E6:  ANDLW  C7
+01E7:  IORWF  78,W
+01E8:  MOVWF  1F
+....................       if(a<TRESHOLD_MAX) 
+01E9:  MOVF   24,W
+01EA:  SUBLW  45
+01EB:  BTFSS  03.0
+01EC:  GOTO   1F6
+....................       { 
+....................          if(a>TRESHOLD_MIN) 
+01ED:  MOVF   24,W
+01EE:  SUBLW  32
+01EF:  BTFSC  03.0
+01F0:  GOTO   1F5
+....................          { 
+....................             cidla |= (last_cidla & 0b00100000); 
+01F1:  MOVF   21,W
+01F2:  ANDLW  20
+01F3:  IORWF  23,F
+....................          } 
+....................          else cidla |= 0b00100000; 
+01F4:  GOTO   1F6
+01F5:  BSF    23.5
+....................       } 
+....................       a=read_adc(); 
+01F6:  BSF    1F.2
+01F7:  BTFSC  1F.2
+01F8:  GOTO   1F7
+01F9:  MOVF   1E,W
+01FA:  MOVWF  24
+....................  
+....................       if(a<TRESHOLD_MAX) 
+01FB:  MOVF   24,W
+01FC:  SUBLW  45
+01FD:  BTFSS  03.0
+01FE:  GOTO   208
+....................       { 
+....................          if(a>TRESHOLD_MIN) 
+01FF:  MOVF   24,W
+0200:  SUBLW  32
+0201:  BTFSC  03.0
+0202:  GOTO   207
+....................          { 
+....................             cidla |=(last_cidla & 0b01000000); 
+0203:  MOVF   21,W
+0204:  ANDLW  40
+0205:  IORWF  23,F
+....................          } 
+....................          else cidla |= 0b01000000; 
+0206:  GOTO   208
+0207:  BSF    23.6
+....................       } 
+....................  
+....................       last_cidla=cidla; 
+0208:  MOVF   23,W
+0209:  MOVWF  21
+....................  
+....................       if (!input(IRRX)) {if (shure<255) shure++;} else {shure=0;}; 
+020A:  BSF    03.5
+020B:  BSF    06.0
+020C:  BCF    03.5
+020D:  BTFSC  06.0
+020E:  GOTO   214
+020F:  INCFSZ 22,W
+0210:  GOTO   212
+0211:  GOTO   213
+0212:  INCF   22,F
+0213:  GOTO   215
+0214:  CLRF   22
+....................       if (shure>CIHLA) cidla|=0b10000000; 
+0215:  MOVF   22,W
+0216:  SUBLW  0A
+0217:  BTFSS  03.0
+0218:  BSF    23.7
+....................  
+....................       cidla=~cidla; 
+0219:  COMF   23,F
+....................       spi_write(cidla); 
+021A:  MOVF   23,W
+021B:  MOVWF  13
+021C:  BSF    03.5
+021D:  BTFSC  14.0
+021E:  GOTO   221
+021F:  BCF    03.5
+0220:  GOTO   21C
+....................    } 
+0221:  BCF    03.5
+0222:  GOTO   158
+.................... } 
+0223:  SLEEP
+
+Configuration Fuses:
+   Word  1: 3F38   NOWDT NOPUT MCLR NOBROWNOUT NOLVP NOCPD NOWRT NODEBUG CCPB0 NOPROTECT INTRC_IO
+   Word  2: 3FFC   NOFCMEN NOIESO

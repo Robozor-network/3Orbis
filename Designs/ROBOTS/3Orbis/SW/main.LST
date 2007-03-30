@@ -1,0 +1,1625 @@
+CCS PCM C Compiler, Version 3.245, 27853               30-IV-06 21:17
+
+               Filename: D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.lst
+
+               ROM used: 1154 words (28%)
+                         Largest free fragment is 2048
+               RAM used: 32 (18%) at main() level
+                         35 (20%) worst case
+               Stack:    5 worst case (3 in main + 2 for interrupts)
+
+*
+0000:  MOVLW  00
+0001:  MOVWF  0A
+0002:  GOTO   26C
+0003:  NOP
+0004:  MOVWF  7F
+0005:  SWAPF  03,W
+0006:  CLRF   03
+0007:  MOVWF  21
+0008:  MOVF   7F,W
+0009:  MOVWF  20
+000A:  MOVF   0A,W
+000B:  MOVWF  28
+000C:  CLRF   0A
+000D:  SWAPF  20,F
+000E:  MOVF   04,W
+000F:  MOVWF  22
+0010:  MOVF   77,W
+0011:  MOVWF  23
+0012:  MOVF   78,W
+0013:  MOVWF  24
+0014:  MOVF   79,W
+0015:  MOVWF  25
+0016:  MOVF   7A,W
+0017:  MOVWF  26
+0018:  MOVF   7B,W
+0019:  MOVWF  27
+001A:  BCF    03.7
+001B:  BCF    03.5
+001C:  MOVLW  8C
+001D:  MOVWF  04
+001E:  BTFSS  00.1
+001F:  GOTO   022
+0020:  BTFSC  0C.1
+0021:  GOTO   035
+0022:  MOVF   22,W
+0023:  MOVWF  04
+0024:  MOVF   23,W
+0025:  MOVWF  77
+0026:  MOVF   24,W
+0027:  MOVWF  78
+0028:  MOVF   25,W
+0029:  MOVWF  79
+002A:  MOVF   26,W
+002B:  MOVWF  7A
+002C:  MOVF   27,W
+002D:  MOVWF  7B
+002E:  MOVF   28,W
+002F:  MOVWF  0A
+0030:  SWAPF  21,W
+0031:  MOVWF  03
+0032:  SWAPF  7F,F
+0033:  SWAPF  7F,W
+0034:  RETFIE
+0035:  BCF    0A.3
+0036:  GOTO   047
+.................... #include ".\main.h" 
+.................... #include <16F88.h> 
+.................... //////// Standard Header file for the PIC16F88 device //////////////// 
+.................... #device PIC16F88 
+.................... #list 
+....................  
+.................... #device adc=8 
+....................  
+.................... #FUSES NOWDT                 	//No Watch Dog Timer 
+.................... #FUSES INTRC_IO 
+.................... #FUSES NOPUT                 	//No Power Up Timer 
+.................... #FUSES MCLR                  	//Master Clear pin enabled 
+.................... #FUSES NOBROWNOUT             //Reset when brownout detected 
+.................... #FUSES NOLVP                  //Low Voltage Programming on B3(PIC16) or B5(PIC18) 
+.................... #FUSES NOCPD                 	//No EE protection 
+.................... #FUSES NOWRT                 	//Program memory not write protected 
+.................... #FUSES NODEBUG               	//No Debug mode for ICD 
+.................... #FUSES NOPROTECT             	//Code not protected from reading 
+.................... #FUSES NOFCMEN                //Fail-safe clock monitor enabled 
+.................... #FUSES NOIESO                  	//Internal External Switch Over mode enabled 
+....................  
+.................... #use delay(clock=8000000,RESTART_WDT) 
+0037:  MOVLW  08
+0038:  SUBWF  3D,F
+0039:  BTFSS  03.0
+003A:  GOTO   046
+003B:  MOVLW  3D
+003C:  MOVWF  04
+003D:  BCF    03.0
+003E:  RRF    00,F
+003F:  MOVF   00,W
+0040:  BTFSC  03.2
+0041:  GOTO   046
+0042:  GOTO   044
+0043:  CLRWDT
+0044:  DECFSZ 00,F
+0045:  GOTO   043
+0046:  RETLW  00
+*
+0065:  MOVLW  3A
+0066:  MOVWF  04
+0067:  MOVF   00,W
+0068:  BTFSC  03.2
+0069:  GOTO   07C
+006A:  MOVLW  02
+006B:  MOVWF  78
+006C:  MOVLW  BF
+006D:  MOVWF  77
+006E:  CLRWDT
+006F:  DECFSZ 77,F
+0070:  GOTO   06E
+0071:  DECFSZ 78,F
+0072:  GOTO   06C
+0073:  MOVLW  96
+0074:  MOVWF  77
+0075:  DECFSZ 77,F
+0076:  GOTO   075
+0077:  NOP
+0078:  NOP
+0079:  CLRWDT
+007A:  DECFSZ 00,F
+007B:  GOTO   06A
+007C:  RETLW  00
+....................  
+....................  
+....................  
+.................... #define  KOLMO1      225         // predni kolecko sroubem dopredu 
+.................... #define  KOLMO2      30          // predni kolecko je hlavou sroubu dozadu 
+.................... #define  STRED       128         // sredni poloha zataceciho kolecka 
+.................... #define  BEAR1       10//10          // 3 stupne zataceni 
+.................... #define  BEAR2       25//25 
+.................... #define  BEAR3       45//45 
+.................... #define  R           100         // Rozumna rychlost 
+.................... #define  R17         200         // X nasobek rozumne rychlosti 
+.................... #define  PRED_CIHLOU 100         // rychlost pri dalkove detekci cihly 
+.................... //#define  L1            1     // cara vlevo 
+.................... #define  L2            2     // cara vlevo 
+.................... #define  L3            3     // cara vlevo 
+.................... #define  S             0     // cara mezi sensory 
+.................... //#define  R1           -1     // cara vpravo 
+.................... #define  R2           -2     // cara vpravo 
+.................... #define  R3           -3     // cara vpravo 
+....................  
+.................... // servo 
+.................... #define  SERVO PIN_B5 
+....................  
+.................... // kroutitka 
+.................... #define  CERVENA  4  // AN4 
+.................... //#define  CERNA    5  // AN5 
+.................... //#define  ZELENA   6  // AN6 
+.................... #define  MODRA    2  // AN2 
+....................  
+.................... // IR 
+.................... #define IRTX      PIN_B2 
+.................... #define  CIHLA    PIN_A3 
+....................  
+.................... //motory 
+.................... #define  FR         output_low(PIN_A7); output_high(PIN_A6)  // Vpred 
+.................... #define  FL         output_low(PIN_A1); output_high(PIN_A0) 
+.................... #define  BR         output_low(PIN_A6); output_high(PIN_A7)  // Vzad 
+.................... #define  BL         output_low(PIN_A0); output_high(PIN_A1) 
+.................... #define  STOPR      output_low(PIN_A6);output_low(PIN_A7) 
+.................... #define  STOPL      output_low(PIN_A0);output_low(PIN_A1) 
+....................  
+.................... //HID 
+.................... #define  LED1     PIN_B1      //oranzova 
+.................... #define  LED2     PIN_B2      //zluta 
+....................  
+.................... #define  STROBE   PIN_B0 
+.................... //#define  SW1      PIN_A2      // Motory On/off 
+....................  
+.................... unsigned int8 sensors;        // pomocna promenna pro cteni cidel na caru 
+.................... signed int8 line = S;         // na ktere strane byla detekovana cara 
+*
+0279:  BCF    03.5
+027A:  CLRF   2B
+.................... //unsigned int8 dira;         // pocita dobu po kterou je ztracena cara 
+.................... unsigned int8 uhel;           // urcuje aktualni uhel zataceni 
+.................... unsigned int8 speed;          // maximalni povolena rychlost 
+.................... unsigned int8 turn;           // rychlost toceni 
+.................... unsigned int8 rovinka;        // pocitadlo na zjisteni rovinky 
+....................  
+.................... signed int16  Lmotor;         // promene, ktere urcuji velikost vykonu na levem 
+.................... signed int16  Rmotor;         // a pravem motoru 
+....................  
+.................... // makro pro PWM pro motory 
+.................... #define GO(motor, direction, power) if(get_timer0()<=power) \ 
+.................... {direction##motor;} else {stop##motor;} 
+.................... //////////////////////////////////////////////////////////////////////////////// 
+.................... #int_TIMER2 
+.................... TIMER2_isr()      // ovladani serva 
+.................... { 
+....................    unsigned int8 n; 
+....................  
+....................    output_high(SERVO); 
+*
+0047:  BSF    03.5
+0048:  BCF    06.5
+0049:  BCF    03.5
+004A:  BSF    06.5
+....................    delay_us(1000); 
+004B:  CLRWDT
+004C:  MOVLW  09
+004D:  MOVWF  3C
+004E:  MOVLW  6D
+004F:  MOVWF  3D
+0050:  CALL   037
+0051:  DECFSZ 3C,F
+0052:  GOTO   04E
+....................    for(n=uhel; n>0; n--) Delay_us(2); 
+0053:  MOVF   2C,W
+0054:  MOVWF  3B
+0055:  MOVF   3B,F
+0056:  BTFSC  03.2
+0057:  GOTO   05E
+0058:  CLRWDT
+0059:  NOP
+005A:  NOP
+005B:  NOP
+005C:  DECF   3B,F
+005D:  GOTO   055
+....................    output_low(SERVO); 
+005E:  BSF    03.5
+005F:  BCF    06.5
+0060:  BCF    03.5
+0061:  BCF    06.5
+.................... } 
+....................  
+.................... //////////////////////////////////////////////////////////////////////////////// 
+0062:  BCF    0C.1
+0063:  BCF    0A.3
+0064:  GOTO   022
+.................... int8 IRcheck()                 // potvrdi detekci cihly 
+.................... { 
+....................    output_high(IRTX);               // vypne vysilac IR 
+....................    delay_ms(10); 
+....................  
+....................    output_low(STROBE); 
+....................    sensors = spi_read(0);         // cteni senzoru 
+....................    sensors=~sensors; 
+....................    output_high(STROBE); 
+....................  
+....................    if(bit_test(sensors,7))    // otestuje, jestli je stale detekovan IR signal 
+....................    { 
+....................       output_low(IRTX);             // zapne vysilac IR 
+....................       delay_ms(10); 
+....................  
+....................       output_low(STROBE); 
+....................       sensors = spi_read(0);         // cteni senzoru 
+....................       sensors=~sensors; 
+....................       output_high(STROBE); 
+....................  
+....................       if(!bit_test(sensors,7))       // otestuje, jestli je detekovana cihla 
+....................       { 
+....................          output_high(IRTX);            // vypne vysilac IR 
+....................          delay_ms(10); 
+....................  
+....................          output_low(STROBE); 
+....................          sensors = spi_read(0);         // cteni senzoru 
+....................          sensors=~sensors; 
+....................          output_high(STROBE); 
+....................  
+....................          output_low(IRTX);             // zapne vysilac IR 
+....................  
+....................          if(bit_test(sensors,7)) return 1; // vrat 1, kdyz je stale cihla 
+....................       } 
+....................    }; 
+....................    output_low(IRTX);             // zapne vysilac IR 
+....................    return 0; // vrat 0, kdyz je detekovano ruseni 
+.................... } 
+.................... //////////////////////////////////////////////////////////////////////////////// 
+.................... #include ".\objizdka_centrovani_R.c" 
+.................... #define  DOLEVA   0 
+.................... #define  DOPRAVA  1 
+....................  
+.................... void cikcak() 
+.................... { 
+....................    unsigned int8 i=0; 
+*
+007D:  CLRF   39
+....................  
+....................    uhel=KOLMO1;         // aby se dalo tocit na miste 
+007E:  MOVLW  E1
+007F:  MOVWF  2C
+....................    Delay_ms(100); 
+0080:  MOVLW  64
+0081:  MOVWF  3A
+0082:  CALL   065
+....................  
+....................    if (line==L2) line=L3;  // poznamenej, kde byla cara pred brzdenim 
+0083:  MOVF   2B,W
+0084:  SUBLW  02
+0085:  BTFSS  03.2
+0086:  GOTO   089
+0087:  MOVLW  03
+0088:  MOVWF  2B
+....................    if (line==S) line=L3; 
+0089:  MOVF   2B,F
+008A:  BTFSS  03.2
+008B:  GOTO   08E
+008C:  MOVLW  03
+008D:  MOVWF  2B
+....................    if (line==R2) line=R3; 
+008E:  MOVF   2B,W
+008F:  SUBLW  FE
+0090:  BTFSS  03.2
+0091:  GOTO   094
+0092:  MOVLW  FD
+0093:  MOVWF  2B
+....................  
+....................    Delay_ms(3);   // prodleva na cteni senzoru pred prenosem 
+0094:  MOVLW  03
+0095:  MOVWF  3A
+0096:  CALL   065
+....................  
+....................    output_low(STROBE);              // zapni zobrazovani na posuvnem registru 
+0097:  BSF    03.5
+0098:  BCF    06.0
+0099:  BCF    03.5
+009A:  BCF    06.0
+....................    sensors = spi_read(0);           // cteni senzoru 
+009B:  MOVF   13,W
+009C:  CLRF   13
+009D:  BSF    03.5
+009E:  BTFSC  14.0
+009F:  GOTO   0A2
+00A0:  BCF    03.5
+00A1:  GOTO   09D
+00A2:  BCF    03.5
+00A3:  MOVF   13,W
+00A4:  MOVWF  2A
+....................    sensors=~sensors; 
+00A5:  COMF   2A,F
+....................    output_high(STROBE);             // vypni zobrazovani na posuvnem registru 
+00A6:  BSF    03.5
+00A7:  BCF    06.0
+00A8:  BCF    03.5
+00A9:  BSF    06.0
+....................  
+....................    while(true) 
+....................    { 
+....................       Delay_ms(3); 
+00AA:  MOVLW  03
+00AB:  MOVWF  3A
+00AC:  CALL   065
+....................  
+....................       if (line==L3) 
+00AD:  MOVF   2B,W
+00AE:  SUBLW  03
+00AF:  BTFSS  03.2
+00B0:  GOTO   0DB
+....................       { 
+....................          GO(L,B,160);GO(R,F,160); 
+00B1:  MOVF   01,W
+00B2:  SUBLW  A0
+00B3:  BTFSS  03.0
+00B4:  GOTO   0BE
+00B5:  BSF    03.5
+00B6:  BCF    05.0
+00B7:  BCF    03.5
+00B8:  BCF    05.0
+00B9:  BSF    03.5
+00BA:  BCF    05.1
+00BB:  BCF    03.5
+00BC:  BSF    05.1
+00BD:  GOTO   0C6
+00BE:  BSF    03.5
+00BF:  BCF    05.0
+00C0:  BCF    03.5
+00C1:  BCF    05.0
+00C2:  BSF    03.5
+00C3:  BCF    05.1
+00C4:  BCF    03.5
+00C5:  BCF    05.1
+00C6:  MOVF   01,W
+00C7:  SUBLW  A0
+00C8:  BTFSS  03.0
+00C9:  GOTO   0D3
+00CA:  BSF    03.5
+00CB:  BCF    05.7
+00CC:  BCF    03.5
+00CD:  BCF    05.7
+00CE:  BSF    03.5
+00CF:  BCF    05.6
+00D0:  BCF    03.5
+00D1:  BSF    05.6
+00D2:  GOTO   0DB
+00D3:  BSF    03.5
+00D4:  BCF    05.6
+00D5:  BCF    03.5
+00D6:  BCF    05.6
+00D7:  BSF    03.5
+00D8:  BCF    05.7
+00D9:  BCF    03.5
+00DA:  BCF    05.7
+....................       }; 
+....................       if (line==R3) 
+00DB:  MOVF   2B,W
+00DC:  SUBLW  FD
+00DD:  BTFSS  03.2
+00DE:  GOTO   109
+....................       { 
+....................          GO(R,B,160);GO(L,F,160); 
+00DF:  MOVF   01,W
+00E0:  SUBLW  A0
+00E1:  BTFSS  03.0
+00E2:  GOTO   0EC
+00E3:  BSF    03.5
+00E4:  BCF    05.6
+00E5:  BCF    03.5
+00E6:  BCF    05.6
+00E7:  BSF    03.5
+00E8:  BCF    05.7
+00E9:  BCF    03.5
+00EA:  BSF    05.7
+00EB:  GOTO   0F4
+00EC:  BSF    03.5
+00ED:  BCF    05.6
+00EE:  BCF    03.5
+00EF:  BCF    05.6
+00F0:  BSF    03.5
+00F1:  BCF    05.7
+00F2:  BCF    03.5
+00F3:  BCF    05.7
+00F4:  MOVF   01,W
+00F5:  SUBLW  A0
+00F6:  BTFSS  03.0
+00F7:  GOTO   101
+00F8:  BSF    03.5
+00F9:  BCF    05.1
+00FA:  BCF    03.5
+00FB:  BCF    05.1
+00FC:  BSF    03.5
+00FD:  BCF    05.0
+00FE:  BCF    03.5
+00FF:  BSF    05.0
+0100:  GOTO   109
+0101:  BSF    03.5
+0102:  BCF    05.0
+0103:  BCF    03.5
+0104:  BCF    05.0
+0105:  BSF    03.5
+0106:  BCF    05.1
+0107:  BCF    03.5
+0108:  BCF    05.1
+....................       }; 
+....................       if (line==S) {STOPL;STOPR; i++;} else i=0; 
+0109:  MOVF   2B,F
+010A:  BTFSS  03.2
+010B:  GOTO   11E
+010C:  BSF    03.5
+010D:  BCF    05.0
+010E:  BCF    03.5
+010F:  BCF    05.0
+0110:  BSF    03.5
+0111:  BCF    05.1
+0112:  BCF    03.5
+0113:  BCF    05.1
+0114:  BSF    03.5
+0115:  BCF    05.6
+0116:  BCF    03.5
+0117:  BCF    05.6
+0118:  BSF    03.5
+0119:  BCF    05.7
+011A:  BCF    03.5
+011B:  BCF    05.7
+011C:  INCF   39,F
+011D:  GOTO   11F
+011E:  CLRF   39
+....................  
+....................       if (i>=100) break;   // pokud je dostatecne dlouho cara vprostred, vypadni 
+011F:  MOVF   39,W
+0120:  SUBLW  63
+0121:  BTFSS  03.0
+0122:  GOTO   159
+....................  
+....................       output_low(STROBE);            // zapni zobrazovani na posuvnem registru 
+0123:  BSF    03.5
+0124:  BCF    06.0
+0125:  BCF    03.5
+0126:  BCF    06.0
+....................       sensors = spi_read(0);         // cteni senzoru 
+0127:  MOVF   13,W
+0128:  CLRF   13
+0129:  BSF    03.5
+012A:  BTFSC  14.0
+012B:  GOTO   12E
+012C:  BCF    03.5
+012D:  GOTO   129
+012E:  BCF    03.5
+012F:  MOVF   13,W
+0130:  MOVWF  2A
+....................       sensors=~sensors; 
+0131:  COMF   2A,F
+....................       output_high(STROBE);           // vypni zobrazovani na posuvnem registru 
+0132:  BSF    03.5
+0133:  BCF    06.0
+0134:  BCF    03.5
+0135:  BSF    06.0
+....................  
+....................       if(bit_test(sensors,3)) //...|...// 
+0136:  BTFSS  2A.3
+0137:  GOTO   13A
+....................       { 
+....................          line=S; 
+0138:  CLRF   2B
+....................          continue; 
+0139:  GOTO   0AA
+....................       } 
+....................  
+....................       if(bit_test(sensors,0)) //|......//     // z duvodu zkraceni doby reakce se cidla nevyhodnocuji poporade ale od krajnich k prostrednimu 
+013A:  BTFSS  2A.0
+013B:  GOTO   13F
+....................       { 
+....................          line=L3; 
+013C:  MOVLW  03
+013D:  MOVWF  2B
+....................          continue; 
+013E:  GOTO   0AA
+....................       } 
+....................  
+....................       if(bit_test(sensors,6)) //......|// 
+013F:  BTFSS  2A.6
+0140:  GOTO   144
+....................       { 
+....................          line=R3; 
+0141:  MOVLW  FD
+0142:  MOVWF  2B
+....................          continue; 
+0143:  GOTO   0AA
+....................       } 
+....................  
+....................       if(bit_test(sensors,1)) //.|.....// 
+0144:  BTFSS  2A.1
+0145:  GOTO   149
+....................       { 
+....................          line=L3; 
+0146:  MOVLW  03
+0147:  MOVWF  2B
+....................          continue; 
+0148:  GOTO   0AA
+....................       } 
+....................  
+....................       if(bit_test(sensors,5)) //.....|.// 
+0149:  BTFSS  2A.5
+014A:  GOTO   14E
+....................       { 
+....................          line=R3; 
+014B:  MOVLW  FD
+014C:  MOVWF  2B
+....................          continue; 
+014D:  GOTO   0AA
+....................       } 
+....................  
+....................       if (bit_test(sensors,2)) //..|....// 
+014E:  BTFSS  2A.2
+014F:  GOTO   153
+....................       { 
+....................          line=L3; 
+0150:  MOVLW  03
+0151:  MOVWF  2B
+....................          continue; 
+0152:  GOTO   0AA
+....................       } 
+....................  
+....................       if (bit_test(sensors,4)) //....|..// 
+0153:  BTFSS  2A.4
+0154:  GOTO   158
+....................       { 
+....................          line=R3; 
+0155:  MOVLW  FD
+0156:  MOVWF  2B
+....................          continue; 
+0157:  GOTO   0AA
+....................       } 
+....................    } 
+0158:  GOTO   0AA
+.................... } 
+0159:  RETLW  00
+.................... //////////////////////////////////////////////////////////////////////////////// 
+.................... void objizdka() 
+.................... { 
+....................    FL;BR;            // doprava 90 
+015A:  BSF    03.5
+015B:  BCF    05.1
+015C:  BCF    03.5
+015D:  BCF    05.1
+015E:  BSF    03.5
+015F:  BCF    05.0
+0160:  BCF    03.5
+0161:  BSF    05.0
+0162:  BSF    03.5
+0163:  BCF    05.6
+0164:  BCF    03.5
+0165:  BCF    05.6
+0166:  BSF    03.5
+0167:  BCF    05.7
+0168:  BCF    03.5
+0169:  BSF    05.7
+....................    Delay_ms(300); 
+016A:  MOVLW  02
+016B:  MOVWF  39
+016C:  MOVLW  96
+016D:  MOVWF  3A
+016E:  CALL   065
+016F:  DECFSZ 39,F
+0170:  GOTO   16C
+....................    BL;FR;            // brzdi z toceni 
+0171:  BSF    03.5
+0172:  BCF    05.0
+0173:  BCF    03.5
+0174:  BCF    05.0
+0175:  BSF    03.5
+0176:  BCF    05.1
+0177:  BCF    03.5
+0178:  BSF    05.1
+0179:  BSF    03.5
+017A:  BCF    05.7
+017B:  BCF    03.5
+017C:  BCF    05.7
+017D:  BSF    03.5
+017E:  BCF    05.6
+017F:  BCF    03.5
+0180:  BSF    05.6
+....................    Delay_ms(100); 
+0181:  MOVLW  64
+0182:  MOVWF  3A
+0183:  CALL   065
+....................    STOPL;STOPR; 
+0184:  BSF    03.5
+0185:  BCF    05.0
+0186:  BCF    03.5
+0187:  BCF    05.0
+0188:  BSF    03.5
+0189:  BCF    05.1
+018A:  BCF    03.5
+018B:  BCF    05.1
+018C:  BSF    03.5
+018D:  BCF    05.6
+018E:  BCF    03.5
+018F:  BCF    05.6
+0190:  BSF    03.5
+0191:  BCF    05.7
+0192:  BCF    03.5
+0193:  BCF    05.7
+....................  
+....................    uhel=STRED; 
+0194:  MOVLW  80
+0195:  MOVWF  2C
+....................    FL;FR; 
+0196:  BSF    03.5
+0197:  BCF    05.1
+0198:  BCF    03.5
+0199:  BCF    05.1
+019A:  BSF    03.5
+019B:  BCF    05.0
+019C:  BCF    03.5
+019D:  BSF    05.0
+019E:  BSF    03.5
+019F:  BCF    05.7
+01A0:  BCF    03.5
+01A1:  BCF    05.7
+01A2:  BSF    03.5
+01A3:  BCF    05.6
+01A4:  BCF    03.5
+01A5:  BSF    05.6
+....................    Delay_ms(380);       // rovne 
+01A6:  MOVLW  02
+01A7:  MOVWF  39
+01A8:  MOVLW  BE
+01A9:  MOVWF  3A
+01AA:  CALL   065
+01AB:  DECFSZ 39,F
+01AC:  GOTO   1A8
+....................  
+....................    uhel=STRED-55; 
+01AD:  MOVLW  49
+01AE:  MOVWF  2C
+....................    STOPL;FR; 
+01AF:  BSF    03.5
+01B0:  BCF    05.0
+01B1:  BCF    03.5
+01B2:  BCF    05.0
+01B3:  BSF    03.5
+01B4:  BCF    05.1
+01B5:  BCF    03.5
+01B6:  BCF    05.1
+01B7:  BSF    03.5
+01B8:  BCF    05.7
+01B9:  BCF    03.5
+01BA:  BCF    05.7
+01BB:  BSF    03.5
+01BC:  BCF    05.6
+01BD:  BCF    03.5
+01BE:  BSF    05.6
+....................    Delay_ms(190);       // doleva 
+01BF:  MOVLW  BE
+01C0:  MOVWF  3A
+01C1:  CALL   065
+....................  
+....................    uhel=STRED; 
+01C2:  MOVLW  80
+01C3:  MOVWF  2C
+....................    FR;FL; 
+01C4:  BSF    03.5
+01C5:  BCF    05.7
+01C6:  BCF    03.5
+01C7:  BCF    05.7
+01C8:  BSF    03.5
+01C9:  BCF    05.6
+01CA:  BCF    03.5
+01CB:  BSF    05.6
+01CC:  BSF    03.5
+01CD:  BCF    05.1
+01CE:  BCF    03.5
+01CF:  BCF    05.1
+01D0:  BSF    03.5
+01D1:  BCF    05.0
+01D2:  BCF    03.5
+01D3:  BSF    05.0
+....................    Delay_ms(300);       // rovne 
+01D4:  MOVLW  02
+01D5:  MOVWF  39
+01D6:  MOVLW  96
+01D7:  MOVWF  3A
+01D8:  CALL   065
+01D9:  DECFSZ 39,F
+01DA:  GOTO   1D6
+....................  
+....................    uhel=STRED-55; 
+01DB:  MOVLW  49
+01DC:  MOVWF  2C
+....................    FR;STOPL; 
+01DD:  BSF    03.5
+01DE:  BCF    05.7
+01DF:  BCF    03.5
+01E0:  BCF    05.7
+01E1:  BSF    03.5
+01E2:  BCF    05.6
+01E3:  BCF    03.5
+01E4:  BSF    05.6
+01E5:  BSF    03.5
+01E6:  BCF    05.0
+01E7:  BCF    03.5
+01E8:  BCF    05.0
+01E9:  BSF    03.5
+01EA:  BCF    05.1
+01EB:  BCF    03.5
+01EC:  BCF    05.1
+....................    Delay_ms(190);       // doleva 
+01ED:  MOVLW  BE
+01EE:  MOVWF  3A
+01EF:  CALL   065
+....................  
+....................    uhel=STRED; 
+01F0:  MOVLW  80
+01F1:  MOVWF  2C
+....................    FR;FL; 
+01F2:  BSF    03.5
+01F3:  BCF    05.7
+01F4:  BCF    03.5
+01F5:  BCF    05.7
+01F6:  BSF    03.5
+01F7:  BCF    05.6
+01F8:  BCF    03.5
+01F9:  BSF    05.6
+01FA:  BSF    03.5
+01FB:  BCF    05.1
+01FC:  BCF    03.5
+01FD:  BCF    05.1
+01FE:  BSF    03.5
+01FF:  BCF    05.0
+0200:  BCF    03.5
+0201:  BSF    05.0
+....................    Delay_ms(100);       // rovne 
+0202:  MOVLW  64
+0203:  MOVWF  3A
+0204:  CALL   065
+....................  
+....................    While((sensors & 0b11111110)!=0) //dokud neni cara 
+....................    { 
+0205:  MOVF   2A,W
+0206:  ANDLW  FE
+0207:  BTFSC  03.2
+0208:  GOTO   218
+....................        sensors = spi_read(0);         // cteni senzoru 
+0209:  MOVF   13,W
+020A:  CLRF   13
+020B:  BSF    03.5
+020C:  BTFSC  14.0
+020D:  GOTO   210
+020E:  BCF    03.5
+020F:  GOTO   20B
+0210:  BCF    03.5
+0211:  MOVF   13,W
+0212:  MOVWF  2A
+....................        sensors=~sensors; 
+0213:  COMF   2A,F
+....................        Delay_ms(3);              // cekani na SLAVE nez pripravi data od cidel 
+0214:  MOVLW  03
+0215:  MOVWF  3A
+0216:  CALL   065
+....................    } 
+0217:  GOTO   205
+....................    BL;BR;         // zabrzdi 
+0218:  BSF    03.5
+0219:  BCF    05.0
+021A:  BCF    03.5
+021B:  BCF    05.0
+021C:  BSF    03.5
+021D:  BCF    05.1
+021E:  BCF    03.5
+021F:  BSF    05.1
+0220:  BSF    03.5
+0221:  BCF    05.6
+0222:  BCF    03.5
+0223:  BCF    05.6
+0224:  BSF    03.5
+0225:  BCF    05.7
+0226:  BCF    03.5
+0227:  BSF    05.7
+....................    Delay_ms(250); 
+0228:  MOVLW  FA
+0229:  MOVWF  3A
+022A:  CALL   065
+....................  
+....................    uhel=KOLMO1; 
+022B:  MOVLW  E1
+022C:  MOVWF  2C
+....................    FL;BR;         // doprava 
+022D:  BSF    03.5
+022E:  BCF    05.1
+022F:  BCF    03.5
+0230:  BCF    05.1
+0231:  BSF    03.5
+0232:  BCF    05.0
+0233:  BCF    03.5
+0234:  BSF    05.0
+0235:  BSF    03.5
+0236:  BCF    05.6
+0237:  BCF    03.5
+0238:  BCF    05.6
+0239:  BSF    03.5
+023A:  BCF    05.7
+023B:  BCF    03.5
+023C:  BSF    05.7
+....................    While((sensors & 0b11111110)!=0) //dokud neni cara 
+....................    { 
+023D:  MOVF   2A,W
+023E:  ANDLW  FE
+023F:  BTFSC  03.2
+0240:  GOTO   250
+....................        sensors = spi_read(0);         // cteni senzoru 
+0241:  MOVF   13,W
+0242:  CLRF   13
+0243:  BSF    03.5
+0244:  BTFSC  14.0
+0245:  GOTO   248
+0246:  BCF    03.5
+0247:  GOTO   243
+0248:  BCF    03.5
+0249:  MOVF   13,W
+024A:  MOVWF  2A
+....................        sensors=~sensors; 
+024B:  COMF   2A,F
+....................        Delay_ms(3);              // cekani na SLAVE nez pripravi data od cidel 
+024C:  MOVLW  03
+024D:  MOVWF  3A
+024E:  CALL   065
+....................    } 
+024F:  GOTO   23D
+....................    STOPL;STOPR;         // zabrzdi 
+0250:  BSF    03.5
+0251:  BCF    05.0
+0252:  BCF    03.5
+0253:  BCF    05.0
+0254:  BSF    03.5
+0255:  BCF    05.1
+0256:  BCF    03.5
+0257:  BCF    05.1
+0258:  BSF    03.5
+0259:  BCF    05.6
+025A:  BCF    03.5
+025B:  BCF    05.6
+025C:  BSF    03.5
+025D:  BCF    05.7
+025E:  BCF    03.5
+025F:  BCF    05.7
+....................    Delay_ms(300); 
+0260:  MOVLW  02
+0261:  MOVWF  39
+0262:  MOVLW  96
+0263:  MOVWF  3A
+0264:  CALL   065
+0265:  DECFSZ 39,F
+0266:  GOTO   262
+.................... //   delay_ms(250); 
+....................  
+....................    line=R3; 
+0267:  MOVLW  FD
+0268:  MOVWF  2B
+....................    cikcak(); 
+0269:  CALL   07D
+.................... } 
+026A:  BCF    0A.3
+026B:  GOTO   3CF (RETURN)
+....................  
+....................  
+.................... //////////////////////////////////////////////////////////////////////////////// 
+.................... void main() 
+.................... { 
+026C:  CLRF   04
+026D:  MOVLW  1F
+026E:  ANDWF  03,F
+026F:  MOVLW  70
+0270:  BSF    03.5
+0271:  MOVWF  0F
+0272:  BCF    1F.4
+0273:  BCF    1F.5
+0274:  MOVF   1B,W
+0275:  ANDLW  80
+0276:  MOVWF  1B
+0277:  MOVLW  07
+0278:  MOVWF  1C
+....................  
+....................    unsigned int8 n; 
+....................    unsigned int8 i,j; 
+....................    unsigned int8 last_sensors; 
+....................    unsigned int8 RozumnaRychlost; 
+....................  
+....................    setup_adc_ports(sAN5|sAN2|sAN4|sAN6|VSS_VDD); // AD pro kroutitka 
+*
+027B:  BSF    03.5
+027C:  BCF    1F.4
+027D:  BCF    1F.5
+027E:  MOVF   1B,W
+027F:  ANDLW  80
+0280:  IORLW  74
+0281:  MOVWF  1B
+....................    setup_adc(ADC_CLOCK_INTERNAL); 
+0282:  BCF    1F.6
+0283:  BCF    03.5
+0284:  BSF    1F.6
+0285:  BSF    1F.7
+0286:  BSF    03.5
+0287:  BCF    1F.7
+0288:  BCF    03.5
+0289:  BSF    1F.0
+....................    setup_spi(SPI_MASTER|SPI_H_TO_L|SPI_XMIT_L_TO_H|SPI_CLK_DIV_16); 
+028A:  BCF    14.5
+028B:  BSF    03.5
+028C:  BCF    06.2
+028D:  BSF    06.1
+028E:  BCF    06.4
+028F:  MOVLW  31
+0290:  BCF    03.5
+0291:  MOVWF  14
+0292:  MOVLW  00
+0293:  BSF    03.5
+0294:  MOVWF  14
+....................    setup_timer_0(RTCC_INTERNAL|RTCC_DIV_1); 
+0295:  MOVF   01,W
+0296:  ANDLW  C7
+0297:  IORLW  08
+0298:  MOVWF  01
+....................    setup_timer_1(T1_DISABLED|T1_DIV_BY_8); 
+0299:  MOVLW  30
+029A:  BCF    03.5
+029B:  MOVWF  10
+....................    setup_timer_2(T2_DIV_BY_16,140,16); 
+029C:  MOVLW  78
+029D:  MOVWF  78
+029E:  IORLW  06
+029F:  MOVWF  12
+02A0:  MOVLW  8C
+02A1:  BSF    03.5
+02A2:  MOVWF  12
+....................    setup_oscillator(OSC_8MHZ|OSC_INTRC); 
+02A3:  MOVLW  72
+02A4:  MOVWF  0F
+....................  
+....................    STOPR; STOPL;  // zastav motory 
+02A5:  BCF    05.6
+02A6:  BCF    03.5
+02A7:  BCF    05.6
+02A8:  BSF    03.5
+02A9:  BCF    05.7
+02AA:  BCF    03.5
+02AB:  BCF    05.7
+02AC:  BSF    03.5
+02AD:  BCF    05.0
+02AE:  BCF    03.5
+02AF:  BCF    05.0
+02B0:  BSF    03.5
+02B1:  BCF    05.1
+02B2:  BCF    03.5
+02B3:  BCF    05.1
+....................    Lmotor=0;Rmotor=0; 
+02B4:  CLRF   31
+02B5:  CLRF   30
+02B6:  CLRF   33
+02B7:  CLRF   32
+....................  
+....................    uhel = STRED;    // nastav zadni kolecko na stred 
+02B8:  MOVLW  80
+02B9:  MOVWF  2C
+....................    rovinka = 0; 
+02BA:  CLRF   2F
+....................  
+....................    enable_interrupts(INT_TIMER2); 
+02BB:  BSF    03.5
+02BC:  BSF    0C.1
+....................    enable_interrupts(GLOBAL); 
+02BD:  MOVLW  C0
+02BE:  BCF    03.5
+02BF:  IORWF  0B,F
+....................  
+....................    output_low(IRTX); // zapni IR vysilac 
+02C0:  BSF    03.5
+02C1:  BCF    06.2
+02C2:  BCF    03.5
+02C3:  BCF    06.2
+....................  
+....................    delay_ms(2000); // musime pockat na diagnostiku slave CPU 
+02C4:  MOVLW  08
+02C5:  MOVWF  39
+02C6:  MOVLW  FA
+02C7:  MOVWF  3A
+02C8:  CALL   065
+02C9:  DECFSZ 39,F
+02CA:  GOTO   2C6
+....................  
+....................    //nastaveni rychlosti 
+....................    set_adc_channel(CERVENA); 
+02CB:  MOVLW  20
+02CC:  MOVWF  78
+02CD:  MOVF   1F,W
+02CE:  ANDLW  C7
+02CF:  IORWF  78,W
+02D0:  MOVWF  1F
+....................  
+....................    Delay_ms(1); 
+02D1:  MOVLW  01
+02D2:  MOVWF  3A
+02D3:  CALL   065
+....................    RozumnaRychlost=R+(read_adc()>>2); // rychlost rovne +63; kroutitko dava 0-63 
+02D4:  BSF    1F.2
+02D5:  BTFSC  1F.2
+02D6:  GOTO   2D5
+02D7:  MOVF   1E,W
+02D8:  MOVWF  77
+02D9:  RRF    77,F
+02DA:  RRF    77,F
+02DB:  MOVLW  3F
+02DC:  ANDWF  77,F
+02DD:  MOVF   77,W
+02DE:  ADDLW  64
+02DF:  MOVWF  38
+....................    set_adc_channel(MODRA); 
+02E0:  MOVLW  10
+02E1:  MOVWF  78
+02E2:  MOVF   1F,W
+02E3:  ANDLW  C7
+02E4:  IORWF  78,W
+02E5:  MOVWF  1F
+....................    Delay_ms(1); 
+02E6:  MOVLW  01
+02E7:  MOVWF  3A
+02E8:  CALL   065
+....................    turn=speed-32+(read_adc()>>2);  // rychlost toceni +-32; kroutitko dava 0-63 
+02E9:  MOVLW  20
+02EA:  SUBWF  2D,W
+02EB:  MOVWF  39
+02EC:  BSF    1F.2
+02ED:  BTFSC  1F.2
+02EE:  GOTO   2ED
+02EF:  MOVF   1E,W
+02F0:  MOVWF  77
+02F1:  RRF    77,F
+02F2:  RRF    77,F
+02F3:  MOVLW  3F
+02F4:  ANDWF  77,F
+02F5:  MOVF   77,W
+02F6:  ADDWF  39,W
+02F7:  MOVWF  2E
+....................  
+....................    speed=R17; 
+02F8:  MOVLW  C8
+02F9:  MOVWF  2D
+....................  
+....................    while(true) 
+....................    { 
+....................  
+....................       GO(L,F,Lmotor);GO(R,F,Rmotor);   // zapni motory PWM podle promenych Lmotor a Rmotor 
+02FA:  MOVF   01,W
+02FB:  BTFSS  00.7
+02FC:  GOTO   300
+02FD:  BTFSS  31.7
+02FE:  GOTO   308
+02FF:  GOTO   302
+0300:  BTFSC  31.7
+0301:  GOTO   311
+0302:  MOVF   31,F
+0303:  BTFSS  03.2
+0304:  GOTO   308
+0305:  SUBWF  30,W
+0306:  BTFSS  03.0
+0307:  GOTO   311
+0308:  BSF    03.5
+0309:  BCF    05.1
+030A:  BCF    03.5
+030B:  BCF    05.1
+030C:  BSF    03.5
+030D:  BCF    05.0
+030E:  BCF    03.5
+030F:  BSF    05.0
+0310:  GOTO   319
+0311:  BSF    03.5
+0312:  BCF    05.0
+0313:  BCF    03.5
+0314:  BCF    05.0
+0315:  BSF    03.5
+0316:  BCF    05.1
+0317:  BCF    03.5
+0318:  BCF    05.1
+0319:  MOVF   01,W
+031A:  BTFSS  00.7
+031B:  GOTO   31F
+031C:  BTFSS  33.7
+031D:  GOTO   327
+031E:  GOTO   321
+031F:  BTFSC  33.7
+0320:  GOTO   330
+0321:  MOVF   33,F
+0322:  BTFSS  03.2
+0323:  GOTO   327
+0324:  SUBWF  32,W
+0325:  BTFSS  03.0
+0326:  GOTO   330
+0327:  BSF    03.5
+0328:  BCF    05.7
+0329:  BCF    03.5
+032A:  BCF    05.7
+032B:  BSF    03.5
+032C:  BCF    05.6
+032D:  BCF    03.5
+032E:  BSF    05.6
+032F:  GOTO   338
+0330:  BSF    03.5
+0331:  BCF    05.6
+0332:  BCF    03.5
+0333:  BCF    05.6
+0334:  BSF    03.5
+0335:  BCF    05.7
+0336:  BCF    03.5
+0337:  BCF    05.7
+....................  
+....................       delay_us(2000);                  // cekani na SLAVE, nez pripravi data od cidel 
+0338:  CLRWDT
+0339:  MOVLW  01
+033A:  MOVWF  3A
+033B:  CALL   065
+033C:  MOVLW  09
+033D:  MOVWF  39
+033E:  CLRF   29
+033F:  BTFSC  0B.7
+0340:  BSF    29.7
+0341:  BCF    0B.7
+0342:  MOVLW  6D
+0343:  MOVWF  3D
+0344:  CALL   037
+0345:  BTFSC  29.7
+0346:  BSF    0B.7
+0347:  DECFSZ 39,F
+0348:  GOTO   33E
+....................  
+....................       last_sensors=sensors; 
+0349:  MOVF   2A,W
+034A:  MOVWF  37
+....................  
+....................       output_low(STROBE);              // vypni zobrazovani na posuvnem registru 
+034B:  BSF    03.5
+034C:  BCF    06.0
+034D:  BCF    03.5
+034E:  BCF    06.0
+....................       sensors = spi_read(0);           // cteni senzoru 
+034F:  MOVF   13,W
+0350:  CLRF   13
+0351:  BSF    03.5
+0352:  BTFSC  14.0
+0353:  GOTO   356
+0354:  BCF    03.5
+0355:  GOTO   351
+0356:  BCF    03.5
+0357:  MOVF   13,W
+0358:  MOVWF  2A
+....................       sensors=~sensors;                // neguj prijata data 
+0359:  COMF   2A,F
+....................       output_high(STROBE);       // zobraz data na posuvnem registru 
+035A:  BSF    03.5
+035B:  BCF    06.0
+035C:  BCF    03.5
+035D:  BSF    06.0
+....................  
+....................       i=0;                       // havarijni kod 
+035E:  CLRF   35
+....................       for (n=0; n<=6; n++) 
+035F:  CLRF   34
+0360:  MOVF   34,W
+0361:  SUBLW  06
+0362:  BTFSS  03.0
+0363:  GOTO   372
+....................       { 
+....................          if(bit_test(sensors,n)) i++; 
+0364:  MOVF   2A,W
+0365:  MOVWF  77
+0366:  MOVF   34,W
+0367:  MOVWF  78
+0368:  BTFSC  03.2
+0369:  GOTO   36E
+036A:  BCF    03.0
+036B:  RRF    77,F
+036C:  DECFSZ 78,F
+036D:  GOTO   36A
+036E:  BTFSC  77.0
+036F:  INCF   35,F
+....................       } 
+0370:  INCF   34,F
+0371:  GOTO   360
+....................       if (i>4) // zastavi, kdyz je cerno pod vice nez tremi cidly 
+0372:  MOVF   35,W
+0373:  SUBLW  04
+0374:  BTFSC  03.0
+0375:  GOTO   39E
+....................       { 
+....................          BL; BR; 
+0376:  BSF    03.5
+0377:  BCF    05.0
+0378:  BCF    03.5
+0379:  BCF    05.0
+037A:  BSF    03.5
+037B:  BCF    05.1
+037C:  BCF    03.5
+037D:  BSF    05.1
+037E:  BSF    03.5
+037F:  BCF    05.6
+0380:  BCF    03.5
+0381:  BCF    05.6
+0382:  BSF    03.5
+0383:  BCF    05.7
+0384:  BCF    03.5
+0385:  BSF    05.7
+....................          delay_ms(300); 
+0386:  MOVLW  02
+0387:  MOVWF  39
+0388:  MOVLW  96
+0389:  MOVWF  3A
+038A:  CALL   065
+038B:  DECFSZ 39,F
+038C:  GOTO   388
+....................          STOPR; STOPL; 
+038D:  BSF    03.5
+038E:  BCF    05.6
+038F:  BCF    03.5
+0390:  BCF    05.6
+0391:  BSF    03.5
+0392:  BCF    05.7
+0393:  BCF    03.5
+0394:  BCF    05.7
+0395:  BSF    03.5
+0396:  BCF    05.0
+0397:  BCF    03.5
+0398:  BCF    05.0
+0399:  BSF    03.5
+039A:  BCF    05.1
+039B:  BCF    03.5
+039C:  BCF    05.1
+....................          While(true); 
+039D:  GOTO   39D
+....................       }; 
+....................  
+.................... /* 
+....................       if (!input(CIHLA))      // dalkova detekce cihly 
+....................       { 
+....................          speed=PRED_CIHLOU; 
+....................       } 
+....................       else 
+....................       { 
+....................          speed=RozumnaRychlost; 
+....................       } 
+.................... */ 
+....................       if (bit_test(sensors,7))    // detekce cihly 
+039E:  BTFSS  2A.7
+039F:  GOTO   3CF
+....................       { 
+....................          BR;BL; 
+03A0:  BSF    03.5
+03A1:  BCF    05.6
+03A2:  BCF    03.5
+03A3:  BCF    05.6
+03A4:  BSF    03.5
+03A5:  BCF    05.7
+03A6:  BCF    03.5
+03A7:  BSF    05.7
+03A8:  BSF    03.5
+03A9:  BCF    05.0
+03AA:  BCF    03.5
+03AB:  BCF    05.0
+03AC:  BSF    03.5
+03AD:  BCF    05.1
+03AE:  BCF    03.5
+03AF:  BSF    05.1
+....................          Delay_ms(400); 
+03B0:  MOVLW  02
+03B1:  MOVWF  39
+03B2:  MOVLW  C8
+03B3:  MOVWF  3A
+03B4:  CALL   065
+03B5:  DECFSZ 39,F
+03B6:  GOTO   3B2
+....................          STOPR;STOPL; 
+03B7:  BSF    03.5
+03B8:  BCF    05.6
+03B9:  BCF    03.5
+03BA:  BCF    05.6
+03BB:  BSF    03.5
+03BC:  BCF    05.7
+03BD:  BCF    03.5
+03BE:  BCF    05.7
+03BF:  BSF    03.5
+03C0:  BCF    05.0
+03C1:  BCF    03.5
+03C2:  BCF    05.0
+03C3:  BSF    03.5
+03C4:  BCF    05.1
+03C5:  BCF    03.5
+03C6:  BCF    05.1
+.................... //         if (1==IRcheck())   // kontrola, jestli nebylo rusene cidlo 
+....................          { 
+....................             Delay_ms(100); 
+03C7:  MOVLW  64
+03C8:  MOVWF  3A
+03C9:  CALL   065
+....................             cikcak(); 
+03CA:  CALL   07D
+....................             delay_ms(100); 
+03CB:  MOVLW  64
+03CC:  MOVWF  3A
+03CD:  CALL   065
+....................             objizdka();       // objede cihlu 
+03CE:  GOTO   15A
+....................          } 
+....................       } 
+....................  
+....................       if (speed > RozumnaRychlost) speed--; // postupne zpomaleni na Roz. Rychl. 
+03CF:  MOVF   2D,W
+03D0:  SUBWF  38,W
+03D1:  BTFSS  03.0
+03D2:  DECF   2D,F
+....................  
+....................       if(bit_test(sensors,3)) //...|...// 
+03D3:  BTFSS  2A.3
+03D4:  GOTO   3E7
+....................       { 
+....................          uhel=STRED; 
+03D5:  MOVLW  80
+03D6:  MOVWF  2C
+....................          Lmotor=speed; 
+03D7:  CLRF   7A
+03D8:  MOVF   2D,W
+03D9:  MOVWF  30
+03DA:  MOVF   7A,W
+03DB:  MOVWF  31
+....................          Rmotor=speed; 
+03DC:  CLRF   7A
+03DD:  MOVF   2D,W
+03DE:  MOVWF  32
+03DF:  MOVF   7A,W
+03E0:  MOVWF  33
+....................          line=S; 
+03E1:  CLRF   2B
+....................          if (rovinka < 255) rovinka++; 
+03E2:  INCFSZ 2F,W
+03E3:  GOTO   3E5
+03E4:  GOTO   3E6
+03E5:  INCF   2F,F
+....................          continue; 
+03E6:  GOTO   2FA
+....................       } 
+....................  
+....................       if(bit_test(sensors,0)) //|......//     // z duvodu zkraceni doby reakce se cidla nevyhodnocuji poporade ale od krajnich k prostrednimu 
+03E7:  BTFSS  2A.0
+03E8:  GOTO   3F5
+....................       { 
+....................          uhel=STRED - BEAR3; 
+03E9:  MOVLW  53
+03EA:  MOVWF  2C
+....................          Lmotor=0; 
+03EB:  CLRF   31
+03EC:  CLRF   30
+....................          Rmotor=turn; 
+03ED:  CLRF   7A
+03EE:  MOVF   2E,W
+03EF:  MOVWF  32
+03F0:  MOVF   7A,W
+03F1:  MOVWF  33
+....................          line=L3; 
+03F2:  MOVLW  03
+03F3:  MOVWF  2B
+....................          continue; 
+03F4:  GOTO   2FA
+....................       } 
+....................  
+....................       if(bit_test(sensors,6)) //......|// 
+03F5:  BTFSS  2A.6
+03F6:  GOTO   403
+....................       { 
+....................          uhel=STRED + BEAR3; 
+03F7:  MOVLW  AD
+03F8:  MOVWF  2C
+....................          Rmotor=0; 
+03F9:  CLRF   33
+03FA:  CLRF   32
+....................          Lmotor=turn; 
+03FB:  CLRF   7A
+03FC:  MOVF   2E,W
+03FD:  MOVWF  30
+03FE:  MOVF   7A,W
+03FF:  MOVWF  31
+....................          line=R3; 
+0400:  MOVLW  FD
+0401:  MOVWF  2B
+....................          continue; 
+0402:  GOTO   2FA
+....................       } 
+....................  
+....................       if(bit_test(sensors,1)) //.|.....// 
+0403:  BTFSS  2A.1
+0404:  GOTO   415
+....................       { 
+....................          uhel=STRED - BEAR2; 
+0405:  MOVLW  67
+0406:  MOVWF  2C
+....................          Lmotor=speed-70; 
+0407:  MOVLW  46
+0408:  SUBWF  2D,W
+0409:  CLRF   7A
+040A:  MOVWF  30
+040B:  MOVF   7A,W
+040C:  MOVWF  31
+....................          Rmotor=speed; 
+040D:  CLRF   7A
+040E:  MOVF   2D,W
+040F:  MOVWF  32
+0410:  MOVF   7A,W
+0411:  MOVWF  33
+....................          line=L2; 
+0412:  MOVLW  02
+0413:  MOVWF  2B
+....................          continue; 
+0414:  GOTO   2FA
+....................       } 
+....................  
+....................       if(bit_test(sensors,5)) //.....|.// 
+0415:  BTFSS  2A.5
+0416:  GOTO   427
+....................       { 
+....................          uhel=STRED + BEAR2; 
+0417:  MOVLW  99
+0418:  MOVWF  2C
+....................          Rmotor=speed-70; 
+0419:  MOVLW  46
+041A:  SUBWF  2D,W
+041B:  CLRF   7A
+041C:  MOVWF  32
+041D:  MOVF   7A,W
+041E:  MOVWF  33
+....................          Lmotor=speed; 
+041F:  CLRF   7A
+0420:  MOVF   2D,W
+0421:  MOVWF  30
+0422:  MOVF   7A,W
+0423:  MOVWF  31
+....................          line=R2; 
+0424:  MOVLW  FE
+0425:  MOVWF  2B
+....................          continue; 
+0426:  GOTO   2FA
+....................       } 
+....................  
+....................       if (bit_test(sensors,2)) //..|....// 
+0427:  BTFSS  2A.2
+0428:  GOTO   43D
+....................       { 
+....................          uhel=STRED - BEAR1; 
+0429:  MOVLW  76
+042A:  MOVWF  2C
+....................          Lmotor=speed-20; 
+042B:  MOVLW  14
+042C:  SUBWF  2D,W
+042D:  CLRF   7A
+042E:  MOVWF  30
+042F:  MOVF   7A,W
+0430:  MOVWF  31
+....................          Rmotor=speed; 
+0431:  CLRF   7A
+0432:  MOVF   2D,W
+0433:  MOVWF  32
+0434:  MOVF   7A,W
+0435:  MOVWF  33
+....................          line=L2; 
+0436:  MOVLW  02
+0437:  MOVWF  2B
+....................          if (rovinka<255) rovinka++; 
+0438:  INCFSZ 2F,W
+0439:  GOTO   43B
+043A:  GOTO   43C
+043B:  INCF   2F,F
+....................          continue; 
+043C:  GOTO   2FA
+....................       } 
+....................  
+....................       if (bit_test(sensors,4)) //....|..// 
+043D:  BTFSS  2A.4
+043E:  GOTO   453
+....................       { 
+....................          uhel=STRED + BEAR1; 
+043F:  MOVLW  8A
+0440:  MOVWF  2C
+....................          Rmotor=speed-20; 
+0441:  MOVLW  14
+0442:  SUBWF  2D,W
+0443:  CLRF   7A
+0444:  MOVWF  32
+0445:  MOVF   7A,W
+0446:  MOVWF  33
+....................          Lmotor=speed; 
+0447:  CLRF   7A
+0448:  MOVF   2D,W
+0449:  MOVWF  30
+044A:  MOVF   7A,W
+044B:  MOVWF  31
+....................          line=L2; 
+044C:  MOVLW  02
+044D:  MOVWF  2B
+....................          if (rovinka<255) rovinka++; 
+044E:  INCFSZ 2F,W
+044F:  GOTO   451
+0450:  GOTO   452
+0451:  INCF   2F,F
+....................          continue; 
+0452:  GOTO   2FA
+....................       } 
+....................  
+....................  
+....................       if ((L3==line) || (R3==line)) // Brzdeni pri vyjeti z trate 
+0453:  MOVF   2B,W
+0454:  SUBLW  03
+0455:  BTFSC  03.2
+0456:  GOTO   45B
+0457:  MOVF   2B,W
+0458:  SUBLW  FD
+0459:  BTFSS  03.2
+045A:  GOTO   480
+....................       { 
+....................          if (rovinka>50) 
+045B:  MOVF   2F,W
+045C:  SUBLW  32
+045D:  BTFSC  03.0
+045E:  GOTO   47D
+....................          { 
+....................             BL; BR; 
+045F:  BSF    03.5
+0460:  BCF    05.0
+0461:  BCF    03.5
+0462:  BCF    05.0
+0463:  BSF    03.5
+0464:  BCF    05.1
+0465:  BCF    03.5
+0466:  BSF    05.1
+0467:  BSF    03.5
+0468:  BCF    05.6
+0469:  BCF    03.5
+046A:  BCF    05.6
+046B:  BSF    03.5
+046C:  BCF    05.7
+046D:  BCF    03.5
+046E:  BSF    05.7
+....................             Delay_ms(100); 
+046F:  MOVLW  64
+0470:  MOVWF  3A
+0471:  CALL   065
+....................             if (rovinka > 250 || speed > 170) delay_ms(50); 
+0472:  MOVF   2F,W
+0473:  SUBLW  FA
+0474:  BTFSS  03.0
+0475:  GOTO   47A
+0476:  MOVF   2D,W
+0477:  SUBLW  AA
+0478:  BTFSC  03.0
+0479:  GOTO   47D
+047A:  MOVLW  32
+047B:  MOVWF  3A
+047C:  CALL   065
+....................          }; 
+....................          rovinka=0; 
+047D:  CLRF   2F
+....................          speed=R17; 
+047E:  MOVLW  C8
+047F:  MOVWF  2D
+....................       }; 
+....................    } 
+0480:  GOTO   2FA
+.................... } 
+0481:  SLEEP
+
+Configuration Fuses:
+   Word  1: 3F38   NOWDT NOPUT MCLR NOBROWNOUT NOLVP NOCPD NOWRT NODEBUG CCPB0 NOPROTECT INTRC_IO
+   Word  2: 3FFC   NOFCMEN NOIESO

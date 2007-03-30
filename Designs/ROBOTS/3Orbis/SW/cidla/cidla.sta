@@ -1,0 +1,35 @@
+
+ROM used: 548 (13%)
+          548 (13%) including unused fragments
+
+          1 Average locations per line
+          6 Average locations per statement
+
+RAM used: 12 (7%) at main() level
+          17 (10%) worst case
+
+Lines Stmts  %   Files
+----- ----- ---  -----
+  158    92 100  D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.c
+    6     0   0  D:\KAKLIK\projekty\roboti\istrobot\3Orbis\cidla\cidla.h
+  279     0   0  C:\Program Files\PICC\devices\16F88.h
+----- -----
+  886   184 Total
+
+Page ROM  %  RAM  Functions:
+---- --- --- ---  ----------
+0     23   4   1  @delay_ms1
+0     38   7   1  @PUTCHAR_1_
+0    371  68   4  main
+0      7   1   0  @const10062
+0     10   2   0  @const10067
+0     21   4   0  @const10080
+0     21   4   3  @DIV88
+0     53  10   2  @PRINTF_U_9600_51_41
+
+ Segment   Used  Free
+---------  ----  ----
+00000-00003     4  0  
+00004-007FF   544  1500  
+00800-00FFF     0  2048  
+
