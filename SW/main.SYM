@@ -1,0 +1,76 @@
+015-016 CCP_1
+015     CCP_1_LOW
+016     CCP_1_HIGH
+020     @INTERRUPT_AREA
+021     @INTERRUPT_AREA
+022     @INTERRUPT_AREA
+023     @INTERRUPT_AREA
+024     @INTERRUPT_AREA
+025     @INTERRUPT_AREA
+026     @INTERRUPT_AREA
+027     @INTERRUPT_AREA
+028     @INTERRUPT_AREA
+029     @INTERRUPT_AREA
+02A     sensors
+02B     line
+02C     uhel
+02D     speed
+02E     turn
+02F     rovinka
+030-031 Lmotor
+032-033 Rmotor
+034     main.n
+035     main.i
+036     main.j
+037     main.last_sensors
+038     main.RozumnaRychlost
+039     cikcak.i
+039     objizdka.@SCRATCH
+039     main.@SCRATCH
+03A     @delay_ms1.P1
+03A     cikcak.@SCRATCH
+03A     main.@SCRATCH
+03B     TIMER2_isr.n
+03C     TIMER2_isr.@SCRATCH
+03D     @delay_us1.P1
+077     @SCRATCH
+078     @SCRATCH
+078     _RETURN_
+079     @SCRATCH
+07A     @SCRATCH
+07B     @SCRATCH
+09C.6   C1OUT
+09C.7   C2OUT
+
+0065  @delay_ms1
+0037  @delay_us1
+0047  TIMER2_isr
+007D  cikcak
+015A  objizdka
+026C  main
+026C  @cinit
+
+Project Files:
+    D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.c
+    D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.h
+    C:\Program Files\PICC\devices\16F88.h
+    D:\KAKLIK\programy\PIC_C\roboti\3Orbis\objizdka_centrovani_R.c
+
+Units:
+    D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.c (main)
+
+Compiler Settings:
+    Processor:      PIC16F88
+    Pointer Size:   8
+    ADC Range:      0-255
+    Opt Level:      9
+    Short,Int,Long: 1,8,16
+
+Output Files:
+    Errors:      D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.err
+    INHX8:       D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.hex
+    Symbols:     D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.sym
+    List:        D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.lst
+    Debug/COFF:  D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.cof
+    Call Tree:   D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.tre
+    Statistics:  D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.sta

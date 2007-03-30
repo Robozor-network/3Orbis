@@ -1,0 +1,35 @@
+
+ROM used: 1154 (28%)
+          1154 (28%) including unused fragments
+
+          2 Average locations per line
+          3 Average locations per statement
+
+RAM used: 32 (18%) at main() level
+          35 (20%) worst case
+
+Lines Stmts  %   Files
+----- ----- ---  -----
+  289   190  49  D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.c
+   19     0   0  D:\KAKLIK\programy\PIC_C\roboti\3Orbis\main.h
+  279     0   0  C:\Program Files\PICC\devices\16F88.h
+  140   200  34  D:\KAKLIK\programy\PIC_C\roboti\3Orbis\objizdka_centrovani_R.c
+----- -----
+ 1454   780 Total
+
+Page ROM  %  RAM  Functions:
+---- --- --- ---  ----------
+0     24   2   1  @delay_ms1
+0     16   1   1  @delay_us1
+0     30   3   2  TIMER2_isr
+0    221  19   2  cikcak
+0    274  24   1  objizdka
+0    534  46   7  main
+
+ Segment   Used  Free
+---------  ----  ----
+00000-00003     4  0  
+00004-00036    51  0  
+00037-007FF  1099  894  
+00800-00FFF     0  2048  
+
