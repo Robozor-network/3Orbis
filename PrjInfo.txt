@@ -1,0 +1,19 @@
+﻿//
+// Toto je popisný soubor pro popis obsahu adresáře (příklad)
+//
+
+[InfoShortDescription.en]
+  Robot 3Orbis
+
+[InfoShortDescription.cs]
+  Robot 3Orbis
+  
+[InfoLongDescription.en]
+  The robot 3Orbos is based on experience with construction of the 
+  older robots. There was added actively stearing front wheel. 
+
+[InfoLongDescription.cs]
+  Čárový robot 3Orbis v vznikl po zkušenostech s předchozími roboty.
+  Byl doplněn zejména aktivním natáčecím řídícím kolem.
+
+[End]
