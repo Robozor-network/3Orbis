@@ -10,7 +10,7 @@
   
 [InfoLongDescription.en]
   The robot 3Orbos is based on experience with construction of the 
-  older robots. There was added actively stearing front wheel. 
+  older robots. There was added actively steering front wheel. 
 
 [InfoLongDescription.cs]
   Čárový robot 3Orbis v vznikl po zkušenostech s předchozími roboty.
